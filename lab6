@@ -1,0 +1,207 @@
+//Necessary imports
+import java.util.ArrayList;
+import java.util.Scanner;
+import java.util.Random;
+
+//Main class
+public class Lab6 
+{
+	public static void main(String[] args)
+	{
+		WhammyGame wg = new WhammyGame();
+		wg.playGame();
+	}
+}
+
+//Initialize WhammyGame class
+class WhammyGame
+{
+	//Create an ArrayList for limitless players
+	ArrayList<Player> pList = new ArrayList<Player>();
+	public WhammyGame()
+	{
+	}
+	
+	//Initiate the game
+	public void playGame()
+	{
+		//Initialize the board
+		Board gameBoard = new Board();
+		Scanner input = new Scanner(System.in);
+		System.out.println("Please enter the number of players: ");
+		int pNum = input.nextInt();
+		//For the amount of players, loop and get the name of each one, and add to the ArrayList
+		for(int p = 1; p<=pNum; p++)
+		{
+			System.out.printf("\nEnter player %d name: ",p);
+			String playerName = input.next();
+			pList.add(new Player(playerName));
+		}
+		System.out.printf("\nPlayers ready...set...play!\n");
+		boolean won = false;
+		int i=0;
+		//Spin until a player wins
+		while (!won)
+		{
+			for (i=0; i<pList.size(); i++)
+			{
+				int score = pList.get(i).takeTurn(gameBoard);
+				if(score >= 10000)
+					won = true;
+			}
+		}
+		System.out.println("End of game!");	
+	}
+}
+
+//Initialize player class
+class Player
+{
+	private String name;
+	private int money;
+
+	//Player name
+	public Player(String pName)
+	{
+		name = pName;
+	}
+	
+	public String getName()
+	{
+		return name;
+	}
+	
+	public void setName(String sName)
+	{
+		name = sName;
+	}
+	
+	public int getMoney()
+	{
+		return money;
+	}
+	
+	public void setMoney(int score)
+	{
+		money = score;
+	}
+	
+	//takeTurn
+	public int takeTurn(Board gameBoard)
+	{
+		System.out.printf("\n%s's turn.\n\n", name);
+		Scanner input = new Scanner(System.in);
+		String spinyn = "";
+		boolean exit = true;
+		//Loop the question of spin or no
+		do
+		{
+			System.out.printf("%s has $%d. Spin?(Y/N)", name, money);
+			spinyn = input.next();
+			if(spinyn.equalsIgnoreCase("Y"))
+			{
+				exit = false;
+				int roll = gameBoard.spin();
+				if(roll==-1)
+				{
+					System.out.println("Whammy!");
+					exit = true;
+				}
+				else
+				{
+					System.out.printf("Spun $%d\n", roll);
+				}
+				postMoney(roll);
+			}
+			else if (spinyn.equalsIgnoreCase("N"))
+			{
+				exit = true;
+			}
+			else
+			{
+				System.out.println("Please enter a valid input.");
+				exit = false;
+			}
+		}while (!exit);
+		return money;
+	}
+	//Return money
+	public void postMoney(int pMoney)
+	{
+		if(pMoney == -1)
+			money = 0;
+		else
+			money += pMoney;
+	}
+	//Player total
+	public String toString()
+	{
+		return "Player " + name + "'s score is now $" + money;
+	}
+}
+//Initialize board
+class Board 
+{
+	private ArrayList<Cell> prizes = new ArrayList<Cell>();
+	//Board array with the prizes
+	public Board()
+	{
+		prizes.add(new Cell(1000));
+		prizes.add(new Cell(1500));
+		prizes.add(new Cell(750));
+		prizes.add(new Cell(600));
+		prizes.add(new Cell(500));
+		prizes.add(new Cell(100));
+		prizes.add(new Cell(250));
+		prizes.add(new Cell(750));
+		prizes.add(new Cell(600));
+		prizes.add(new Cell(1500));
+		prizes.add(new Cell(-1));
+		prizes.add(new Cell(500));
+		prizes.add(new Cell(1000));
+		prizes.add(new Cell(750));
+		prizes.add(new Cell(-1));
+		prizes.add(new Cell(500));
+		prizes.add(new Cell(1000));
+	}
+	//Random number generated for winnings from ArrayList
+	public int spin()
+	{
+		Random rand = new Random();
+		int index = rand.nextInt(prizes.size());
+		int value = prizes.get(index).getValue();
+		return value;
+	}
+}
+
+//Initialize Cell
+class Cell
+{
+	private int value;
+	
+	public Cell (int value)
+	{
+		this.value = value;
+	}
+	
+	public void setValue(int value1)
+	{
+		value = value1;
+	}
+	
+	public int getValue()
+	{
+		return value;
+	}
+	
+	public String toString()
+	{
+		if(value==-1)
+		{
+			return "Whammy!";
+		}else
+		{
+			return "$" + Integer.toString(value);
+		}
+	}
+}
